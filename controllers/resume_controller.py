@@ -13,3 +13,4 @@ class ResumeController:
             return await self.resume_service.upload_resume(file)
         except HTTPException as e:
             raise HTTPException(status_code=e.status_code, detail=e.detail)
+    

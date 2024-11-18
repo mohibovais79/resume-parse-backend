@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 from logs.logging import setup_logger
 from services.model import process_resume, return_response
+from utils.utils import allowed_file
 
 
 class ResumeUpload(BaseModel):
@@ -20,13 +21,9 @@ class ResumeService:
     def __init__(self) -> None:
         self.resumes = []
 
-    def allowed_file(self, filename):
-        allowed_extensions = {".docx", ".png", ".jpg", ".jpeg", ".pdf"}
-        return any(filename.lower().endswith(ext) for ext in allowed_extensions)
-
     async def upload_resume(self, file: UploadFile):
         logger = setup_logger("resume_service")
-        if not self.allowed_file(file.filename):
+        if not allowed_file(file.filename):
             raise HTTPException(
                 status_code=400, detail="File type not allowed. Please upload a .docx, .png, .jpg, .jpeg, or .pdf file."
             )

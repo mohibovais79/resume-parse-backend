@@ -10,15 +10,15 @@ from PIL import Image
 from rapidocr_onnxruntime import RapidOCR
 
 from logs.logging import setup_logger
+from utils.utils import ocr_extraction
 
 from .prompt import return_prompt
 from .response_format import format
 
 
-def return_response(resume_text: str):
+def return_response(resume_text: str,api_key:str):
     logger = setup_logger("resume_service")
 
-    api_key = os.getenv("OPENAI_API_KEY")
 
     prompt = return_prompt(resume_text)
     client = OpenAI(api_key=api_key)
@@ -36,6 +36,7 @@ def return_response(resume_text: str):
     )
     logger.info("response by api", response.choices[0].message.content)
     return response.choices[0].message.content
+
 
 
 async def process_resume(file_path: str) -> str:
@@ -71,12 +72,8 @@ async def process_resume(file_path: str) -> str:
     elif file_path.endswith((".jpg", ".jpeg", ".png")):
         # Open image from file path
         image = Image.open(file_path)
-        engine = RapidOCR()
-        result, elapse = engine(image)
-        extracted_texts = [item[1] for item in result]
-        text = ""
-        for extracted_text in extracted_texts:
-            text = text + extracted_text
+        text=ocr_extraction(image)
+        
         return text
 
     else:
